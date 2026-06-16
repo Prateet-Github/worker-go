@@ -9,5 +9,12 @@ import (
 func Process(job types.VideoJob) error {
 	log.Println("Starting processing:", job.VideoID)
 
+	workspace, err := CreateWorkspace(job.VideoID)
+	if err != nil {
+		return err
+	}
+
+	log.Println("Workspace:", workspace)
+
 	return nil
 }

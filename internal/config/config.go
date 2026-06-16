@@ -10,6 +10,8 @@ import (
 type Config struct {
 	RedisHost string
 	RedisPort string
+	AWSRegion string
+	RawBucket string
 }
 
 func Load() *Config {
@@ -21,5 +23,7 @@ func Load() *Config {
 	return &Config{
 		RedisHost: os.Getenv("REDIS_HOST"),
 		RedisPort: os.Getenv("REDIS_PORT"),
+		AWSRegion: os.Getenv("AWS_REGION"),
+		RawBucket: os.Getenv("S3_RAW_BUCKET"),
 	}
 }
