@@ -5,6 +5,7 @@ import (
 
 	"github.com/Prateet-Github/worker-go/internal/config"
 	"github.com/Prateet-Github/worker-go/internal/queue"
+	"github.com/Prateet-Github/worker-go/internal/types"
 )
 
 func main() {
@@ -17,8 +18,14 @@ func main() {
 		log.Fatal("Redis connection failed:", err)
 	}
 
-	log.Println("Worker started")
-	log.Println("Connected to Redis")
+	job := types.VideoJob{
+		VideoID: "12345",
+		S3Key:   "videos/video1.mp4",
+	}
 
-	queue.ConsumeJobs(client)
+	if err := queue.PushJob(client, job); err != nil {
+		log.Fatal("Failed to push job:", err)
+	}
+
+	log.Println("Job pushed successfully")
 }
