@@ -28,6 +28,10 @@ func main() {
 
 	log.Println("S3 client created successfully")
 
+	if err := s3.ListObjects(s3Client, cfg.S3RawBucket); err != nil {
+		log.Fatal("Failed to list objects:", err)
+	}
+
 	_ = s3Client
 
 	job := types.VideoJob{
