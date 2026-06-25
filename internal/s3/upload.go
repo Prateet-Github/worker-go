@@ -39,7 +39,7 @@ func UploadDirectory(
 				filepath.Join(s3Prefix, relativePath),
 			)
 
-			if err := uploadFile(
+			if err := UploadFile(
 				ctx,
 				client,
 				bucket,
@@ -60,7 +60,7 @@ func UploadDirectory(
 	)
 }
 
-func uploadFile(
+func UploadFile(
 	ctx context.Context,
 	client *awss3.Client,
 	bucket string,

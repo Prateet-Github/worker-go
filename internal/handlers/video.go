@@ -89,6 +89,26 @@ func (h *VideoHandler) ProcessVideo(
 
 	log.Println("HLS generated")
 
+	thumbnailPath := filepath.Join(
+		workspace,
+		"thumbnail.jpg",
+	)
+
+	log.Println("Generating thumbnail...")
+
+	if err := h.ffmpeg.GenerateThumbnail(
+		ctx,
+		inputPath,
+		thumbnailPath,
+	); err != nil {
+		log.Printf("GenerateThumbnail failed: %v", err)
+		return err
+	}
+
+	log.Println("Thumbnail generated")
+
+	log.Println("Uploading thumbnail...")
+
 	log.Println("Uploading HLS...")
 
 	if err := s3.UploadDirectory(
@@ -105,6 +125,22 @@ func (h *VideoHandler) ProcessVideo(
 	}
 
 	log.Println("HLS uploaded")
+
+	if err := s3.UploadFile(
+		ctx,
+		h.s3Client,
+		h.cfg.S3ProdBucket,
+		thumbnailPath,
+		filepath.Join(
+			s3.ProcessedVideosPrefix,
+			payload.VideoID,
+			"thumbnail.jpg",
+		),
+	); err != nil {
+		return err
+	}
+
+	log.Println("Thumbnail uploaded")
 
 	log.Printf(
 		"Video %s processed successfully",
