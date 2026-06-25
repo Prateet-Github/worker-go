@@ -6,6 +6,7 @@ import (
 	"github.com/Prateet-Github/worker-go/internal/config"
 	"github.com/Prateet-Github/worker-go/internal/handlers"
 	"github.com/Prateet-Github/worker-go/internal/queue"
+	"github.com/Prateet-Github/worker-go/internal/s3"
 
 	"github.com/hibiken/asynq"
 )
@@ -15,7 +16,10 @@ func main() {
 
 	server := queue.NewServer(cfg)
 
-	videoHandler := handlers.NewVideoHandler()
+	s3Client := s3.NewClient(cfg)
+	videoHandler := handlers.NewVideoHandler(
+		s3Client,
+	)
 
 	mux := asynq.NewServeMux()
 

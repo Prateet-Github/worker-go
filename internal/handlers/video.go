@@ -6,13 +6,20 @@ import (
 	"log"
 
 	"github.com/Prateet-Github/worker-go/internal/queue"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/hibiken/asynq"
 )
 
-type VideoHandler struct{}
+type VideoHandler struct {
+	s3Client *s3.Client
+}
 
-func NewVideoHandler() *VideoHandler {
-	return &VideoHandler{}
+func NewVideoHandler(
+	s3Client *s3.Client,
+) *VideoHandler {
+	return &VideoHandler{
+		s3Client: s3Client,
+	}
 }
 
 func (h *VideoHandler) ProcessVideo(
