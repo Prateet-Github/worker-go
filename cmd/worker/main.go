@@ -19,6 +19,7 @@ func main() {
 	s3Client := s3.NewClient(cfg)
 	videoHandler := handlers.NewVideoHandler(
 		s3Client,
+		cfg,
 	)
 
 	mux := asynq.NewServeMux()
