@@ -45,11 +45,6 @@ func (h *VideoHandler) ProcessVideo(
 		return err
 	}
 
-	// localPath := filepath.Join(
-	// 	"temp",
-	// 	payload.VideoID+".mp4",
-	// )
-
 	workspace := filepath.Join(
 		"temp",
 		payload.VideoID,
@@ -65,54 +60,56 @@ func (h *VideoHandler) ProcessVideo(
 		"hls",
 	)
 
-	log.Println("Starting download...")
+	log.Printf("Processing video: %s", payload.VideoID)
 
-	err := s3.DownloadFile(
+	log.Println("Downloading video...")
+
+	if err := s3.DownloadFile(
+		ctx,
 		h.s3Client,
 		h.cfg.S3RawBucket,
 		payload.S3Key,
 		inputPath,
-	)
-
-	if err != nil {
+	); err != nil {
 		return err
 	}
 
-	log.Println("Download complete")
+	log.Println("Download completed")
 
-	log.Println("Calling FFmpeg...")
+	log.Println("Generating HLS...")
 
 	if err := h.ffmpeg.GenerateHLS(
 		ctx,
 		inputPath,
 		outputDir,
 	); err != nil {
-		log.Printf("GenerateHLS failed: %v\n", err)
+		log.Printf("GenerateHLS failed: %v", err)
 		return err
 	}
 
-	err = s3.UploadDirectory(
+	log.Println("HLS generated")
+
+	log.Println("Uploading HLS...")
+
+	if err := s3.UploadDirectory(
+		ctx,
 		h.s3Client,
 		h.cfg.S3ProdBucket,
 		outputDir,
-		filepath.Join(s3.ProcessedVideosPrefix, payload.VideoID),
-	)
-
-	if err != nil {
+		filepath.Join(
+			s3.ProcessedVideosPrefix,
+			payload.VideoID,
+		),
+	); err != nil {
 		return err
 	}
 
-	log.Println("HLS uploaded successfully")
+	log.Println("HLS uploaded")
 
-	log.Println("FFmpeg finished")
-
-	log.Println("HLS generated successfully")
-
-	log.Println("Download completed:", inputPath)
-
-	log.Println("Processing video...")
-	log.Println("Video ID:", payload.VideoID)
-	log.Println("S3 Key:", payload.S3Key)
+	log.Printf(
+		"Video %s processed successfully",
+		payload.VideoID,
+	)
 
 	return nil
 }

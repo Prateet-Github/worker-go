@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 
@@ -11,17 +12,18 @@ import (
 )
 
 func DownloadFile(
+	ctx context.Context,
 	client *awss3.Client,
 	bucket string,
 	key string,
 	outputPath string,
 ) error {
 
-	fmt.Printf("Downloading: %s\n", key)
-	fmt.Printf("Saving to: %s\n", outputPath)
+	log.Printf("Downloading: %s", key)
+	log.Printf("Saving to: %s", outputPath)
 
 	resp, err := client.GetObject(
-		context.Background(),
+		ctx,
 		&awss3.GetObjectInput{
 			Bucket: &bucket,
 			Key:    &key,
@@ -41,7 +43,6 @@ func DownloadFile(
 	}
 
 	file, err := os.Create(outputPath)
-
 	if err != nil {
 		return err
 	}
@@ -53,7 +54,6 @@ func DownloadFile(
 	}
 
 	info, err := file.Stat()
-
 	if err != nil {
 		_ = os.Remove(outputPath)
 		return err
@@ -64,8 +64,8 @@ func DownloadFile(
 		return fmt.Errorf("downloaded file is empty")
 	}
 
-	fmt.Printf(
-		"Downloaded: %s -> %s\n",
+	log.Printf(
+		"Downloaded: %s -> %s",
 		key,
 		outputPath,
 	)

@@ -2,7 +2,7 @@ package s3
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"mime"
 	"os"
 	"path/filepath"
@@ -11,6 +11,7 @@ import (
 )
 
 func UploadDirectory(
+	ctx context.Context,
 	client *awss3.Client,
 	bucket string,
 	localDir string,
@@ -39,6 +40,7 @@ func UploadDirectory(
 			)
 
 			if err := uploadFile(
+				ctx,
 				client,
 				bucket,
 				path,
@@ -47,8 +49,8 @@ func UploadDirectory(
 				return err
 			}
 
-			fmt.Printf(
-				"Uploaded: %s -> %s\n",
+			log.Printf(
+				"Uploaded: %s -> %s",
 				path,
 				s3Key,
 			)
@@ -59,6 +61,7 @@ func UploadDirectory(
 }
 
 func uploadFile(
+	ctx context.Context,
 	client *awss3.Client,
 	bucket string,
 	localPath string,
@@ -66,11 +69,9 @@ func uploadFile(
 ) error {
 
 	file, err := os.Open(localPath)
-
 	if err != nil {
 		return err
 	}
-
 	defer file.Close()
 
 	contentType := mime.TypeByExtension(
@@ -82,7 +83,7 @@ func uploadFile(
 	}
 
 	_, err = client.PutObject(
-		context.Background(),
+		ctx,
 		&awss3.PutObjectInput{
 			Bucket:      &bucket,
 			Key:         &s3Key,
