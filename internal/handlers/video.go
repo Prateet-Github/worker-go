@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 
+	"github.com/Prateet-Github/worker-go/internal/api"
 	"github.com/Prateet-Github/worker-go/internal/config"
 	"github.com/Prateet-Github/worker-go/internal/ffmpeg"
 	"github.com/Prateet-Github/worker-go/internal/queue"
@@ -20,17 +21,20 @@ type VideoHandler struct {
 	s3Client *awss3.Client
 	cfg      *config.Config
 	ffmpeg   *ffmpeg.Service
+	api      *api.Client
 }
 
 func NewVideoHandler(
 	s3Client *awss3.Client,
 	cfg *config.Config,
 	ffmpeg *ffmpeg.Service,
+	api *api.Client,
 ) *VideoHandler {
 	return &VideoHandler{
 		s3Client: s3Client,
 		cfg:      cfg,
 		ffmpeg:   ffmpeg,
+		api:      api,
 	}
 }
 
@@ -141,6 +145,37 @@ func (h *VideoHandler) ProcessVideo(
 	}
 
 	log.Println("Thumbnail uploaded")
+
+	log.Println("Calling CompleteVideo API...")
+
+	err := h.api.CompleteVideo(
+		ctx,
+		payload.VideoID,
+		api.CompleteVideoRequest{
+			HLSURL: filepath.ToSlash(
+				filepath.Join(
+					s3.ProcessedVideosPrefix,
+					payload.VideoID,
+					"master.m3u8",
+				),
+			),
+			ThumbnailKey: filepath.ToSlash(
+				filepath.Join(
+					s3.ProcessedVideosPrefix,
+					payload.VideoID,
+					"thumbnail.jpg",
+				),
+			),
+		},
+	)
+
+	if err != nil {
+		  log.Printf("CompleteVideo API failed: %v", err)
+		return err
+	}
+
+	log.Println("CompleteVideo API succeeded")
+	log.Println("API updated")
 
 	log.Printf(
 		"Video %s processed successfully",

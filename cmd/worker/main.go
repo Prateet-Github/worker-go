@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 
+	"github.com/Prateet-Github/worker-go/internal/api"
 	"github.com/Prateet-Github/worker-go/internal/config"
 	"github.com/Prateet-Github/worker-go/internal/ffmpeg"
 	"github.com/Prateet-Github/worker-go/internal/handlers"
@@ -19,10 +20,12 @@ func main() {
 
 	s3Client := s3.NewClient(cfg)
 	ffmpegService := ffmpeg.NewService()
+	apiClient := api.NewClient(cfg.APIBaseURL)
 	videoHandler := handlers.NewVideoHandler(
 		s3Client,
 		cfg,
 		ffmpegService,
+		apiClient,
 	)
 
 	mux := asynq.NewServeMux()
