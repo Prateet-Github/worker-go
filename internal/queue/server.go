@@ -1,6 +1,8 @@
 package queue
 
 import (
+	"fmt"
+
 	"github.com/Prateet-Github/worker-go/internal/config"
 	"github.com/hibiken/asynq"
 )
@@ -8,7 +10,7 @@ import (
 func NewServer(cfg *config.Config) *asynq.Server {
 	return asynq.NewServer(
 		asynq.RedisClientOpt{
-			Addr: cfg.RedisHost + ":" + cfg.RedisPort,
+			Addr: fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort),
 		},
 		asynq.Config{
 			Concurrency: 5,
