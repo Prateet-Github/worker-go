@@ -4,19 +4,29 @@ import (
 	"log"
 
 	"github.com/Prateet-Github/worker-go/internal/config"
+	"github.com/Prateet-Github/worker-go/internal/handlers"
 	"github.com/Prateet-Github/worker-go/internal/queue"
+
+	"github.com/hibiken/asynq"
 )
 
 func main() {
 	cfg := config.Load()
 
-	client := queue.NewClient(cfg)
-	defer client.Close()
+	server := queue.NewServer(cfg)
 
-	if err := queue.Ping(client); err != nil {
-		log.Fatal("Redis connection failed:", err)
-	}
+	videoHandler := handlers.NewVideoHandler()
 
-	log.Println("Connected to Redis")
+	mux := asynq.NewServeMux()
+
+	mux.HandleFunc(
+		queue.TypeProcessVideo,
+		videoHandler.ProcessVideo,
+	)
+
 	log.Println("Worker started")
+
+	if err := server.Run(mux); err != nil {
+		log.Fatal(err)
+	}
 }
