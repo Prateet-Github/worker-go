@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/Prateet-Github/worker-go/internal/config"
+	"github.com/Prateet-Github/worker-go/internal/ffmpeg"
 	"github.com/Prateet-Github/worker-go/internal/queue"
 	"github.com/Prateet-Github/worker-go/internal/s3"
 
@@ -18,15 +19,18 @@ import (
 type VideoHandler struct {
 	s3Client *awss3.Client
 	cfg      *config.Config
+	ffmpeg   *ffmpeg.Service
 }
 
 func NewVideoHandler(
 	s3Client *awss3.Client,
 	cfg *config.Config,
+	ffmpeg *ffmpeg.Service,
 ) *VideoHandler {
 	return &VideoHandler{
 		s3Client: s3Client,
 		cfg:      cfg,
+		ffmpeg:   ffmpeg,
 	}
 }
 
@@ -41,23 +45,57 @@ func (h *VideoHandler) ProcessVideo(
 		return err
 	}
 
-	localPath := filepath.Join(
+	// localPath := filepath.Join(
+	// 	"temp",
+	// 	payload.VideoID+".mp4",
+	// )
+
+	workspace := filepath.Join(
 		"temp",
-		payload.VideoID+".mp4",
+		payload.VideoID,
 	)
+
+	inputPath := filepath.Join(
+		workspace,
+		"input.mp4",
+	)
+
+	outputDir := filepath.Join(
+		workspace,
+		"hls",
+	)
+
+	log.Println("Starting download...")
 
 	err := s3.DownloadFile(
 		h.s3Client,
 		h.cfg.S3RawBucket,
 		payload.S3Key,
-		localPath,
+		inputPath,
 	)
 
 	if err != nil {
 		return err
 	}
 
-	log.Println("Download completed:", localPath)
+	log.Println("Download complete")
+
+log.Println("Calling FFmpeg...")
+
+	if err := h.ffmpeg.GenerateHLS(
+		ctx,
+		inputPath,
+		outputDir,
+	); err != nil {
+		log.Printf("GenerateHLS failed: %v\n", err)
+		return err
+	}
+
+	log.Println("FFmpeg finished")
+
+	log.Println("HLS generated successfully")
+
+	log.Println("Download completed:", inputPath)
 
 	log.Println("Processing video...")
 	log.Println("Video ID:", payload.VideoID)
