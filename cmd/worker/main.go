@@ -10,15 +10,13 @@ import (
 func main() {
 	cfg := config.Load()
 
-	client := queue.NewRedisClient(cfg)
+	client := queue.NewClient(cfg)
 	defer client.Close()
 
 	if err := queue.Ping(client); err != nil {
 		log.Fatal("Redis connection failed:", err)
 	}
 
-	log.Println("Worker started")
 	log.Println("Connected to Redis")
-
-	queue.ConsumeJobs(client)
+	log.Println("Worker started")
 }
