@@ -80,7 +80,7 @@ func (h *VideoHandler) ProcessVideo(
 
 	log.Println("Download complete")
 
-log.Println("Calling FFmpeg...")
+	log.Println("Calling FFmpeg...")
 
 	if err := h.ffmpeg.GenerateHLS(
 		ctx,
@@ -90,6 +90,19 @@ log.Println("Calling FFmpeg...")
 		log.Printf("GenerateHLS failed: %v\n", err)
 		return err
 	}
+
+	err = s3.UploadDirectory(
+		h.s3Client,
+		h.cfg.S3ProdBucket,
+		outputDir,
+		filepath.Join(s3.ProcessedVideosPrefix, payload.VideoID),
+	)
+
+	if err != nil {
+		return err
+	}
+
+	log.Println("HLS uploaded successfully")
 
 	log.Println("FFmpeg finished")
 
