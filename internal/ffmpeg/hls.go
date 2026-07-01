@@ -1,8 +1,10 @@
 package ffmpeg
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"os/exec"
 )
@@ -30,6 +32,9 @@ func (s *Service) GenerateVariant(
 	)
 
 	args := []string{
+		"-hide_banner",
+		"-loglevel", "error",
+
 		"-y",
 		"-i", inputPath,
 
@@ -57,8 +62,24 @@ func (s *Service) GenerateVariant(
 		args...,
 	)
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	// cmd.Stdout = os.Stdout
+	// cmd.Stderr = os.Stderr
+	// return cmd.Run()
 
-	return cmd.Run()
+	var stderr bytes.Buffer
+
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		log.Printf(
+			"ffmpeg failed for %s:\n%s",
+			rendition.Name,
+			stderr.String(),
+		)
+
+		return err
+	}
+
+	return nil
+
 }

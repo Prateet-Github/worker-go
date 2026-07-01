@@ -1,7 +1,9 @@
 package ffmpeg
 
 import (
+	"bytes"
 	"context"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -21,6 +23,9 @@ func (s *Service) GenerateThumbnail(
 	}
 
 	args := []string{
+		"-hide_banner",
+		"-loglevel", "error",
+
 		"-y",
 
 		"-ss", "00:00:02",
@@ -28,6 +33,7 @@ func (s *Service) GenerateThumbnail(
 		"-i", inputPath,
 
 		"-frames:v", "1",
+		"-update", "1",
 
 		"-q:v", "2",
 
@@ -40,8 +46,16 @@ func (s *Service) GenerateThumbnail(
 		args...,
 	)
 
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	var stderr bytes.Buffer
+	cmd.Stderr = &stderr
 
-	return cmd.Run()
+	if err := cmd.Run(); err != nil {
+		log.Printf(
+			"thumbnail generation failed:\n%s",
+			stderr.String(),
+		)
+		return err
+	}
+
+	return nil
 }
