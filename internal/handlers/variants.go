@@ -17,12 +17,19 @@ func (h *VideoHandler) generateVariants(
 
 	var wg sync.WaitGroup
 
+	const maxConcurrentEncodes = 3
+	sem := make(chan struct{}, maxConcurrentEncodes)
+
 	errCh := make(chan error, len(ffmpeg.Renditions))
 
 	for _, rendition := range ffmpeg.Renditions {
 		r := rendition
 
 		wg.Go(func() { // new syntax for WaitGroup in Go 1.25 intead of wg.Add(1) and defer wg.Done() & go func()
+
+			sem <- struct{}{}        // acquires a slot in the semaphore
+			defer func() { <-sem }() // releases the slot in the semaphore
+
 			renditionDir := filepath.Join(
 				outputDir,
 				r.Name,
