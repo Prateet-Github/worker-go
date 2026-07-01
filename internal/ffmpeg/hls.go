@@ -7,22 +7,34 @@ import (
 	"os/exec"
 )
 
-func (s *Service) GenerateHLS(
+func (s *Service) GenerateVariant(
 	ctx context.Context,
 	inputPath string,
 	outputDir string,
+	rendition Rendition,
 ) error {
 
 	if err := os.MkdirAll(outputDir, 0755); err != nil {
 		return err
 	}
 
+	scale := fmt.Sprintf(
+		"scale=%d:%d",
+		rendition.Width,
+		rendition.Height,
+	)
+
 	args := []string{
 		"-y",
 		"-i", inputPath,
 
+		"-vf", scale,
+
 		"-c:v", "libx264",
+		"-b:v", rendition.VideoBitrate,
+
 		"-c:a", "aac",
+		"-b:a", rendition.AudioBitrate,
 
 		"-f", "hls",
 		"-hls_time", "6",
@@ -31,7 +43,7 @@ func (s *Service) GenerateHLS(
 		"-hls_segment_filename",
 		fmt.Sprintf("%s/segment_%%03d.ts", outputDir),
 
-		fmt.Sprintf("%s/master.m3u8", outputDir),
+		fmt.Sprintf("%s/index.m3u8", outputDir),
 	}
 
 	cmd := exec.CommandContext(

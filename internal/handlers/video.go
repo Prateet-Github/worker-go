@@ -82,13 +82,33 @@ func (h *VideoHandler) ProcessVideo(
 
 	log.Println("Generating HLS...")
 
-	if err := h.ffmpeg.GenerateHLS(
-		ctx,
-		inputPath,
-		outputDir,
-	); err != nil {
-		log.Printf("GenerateHLS failed: %v", err)
-		return err
+	// if err := h.ffmpeg.GenerateVariant(
+	// 	ctx,
+	// 	inputPath,
+	// 	outputDir,
+	// 	ffmpeg.Renditions[1],
+	// ); err != nil {
+	// 	log.Printf("GenerateHLS failed: %v", err)
+	// 	return err
+	// }
+
+	for _, rendition := range ffmpeg.Renditions {
+
+		renditionDir := filepath.Join(
+			outputDir,
+			rendition.Name,
+		)
+
+		log.Printf("Generating %s...", rendition.Name)
+
+		if err := h.ffmpeg.GenerateVariant(
+			ctx,
+			inputPath,
+			renditionDir,
+			rendition,
+		); err != nil {
+			return err
+		}
 	}
 
 	log.Println("HLS generated")
@@ -170,7 +190,7 @@ func (h *VideoHandler) ProcessVideo(
 	)
 
 	if err != nil {
-		  log.Printf("CompleteVideo API failed: %v", err)
+		log.Printf("CompleteVideo API failed: %v", err)
 		return err
 	}
 
