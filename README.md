@@ -1,10 +1,10 @@
-# StreamIt Worker (Go)
+# Video Processing Pipeline
 
-![streamit-worker](assets/worker.png)
+![video-processing-pipeline](assets/worker.png)
 
-A high-performance distributed video processing worker powering StreamIt.
+A high-performance video processing pipeline built in Go.
 
-Built with Go for efficient concurrent media processing, the worker consumes background jobs, transcodes videos into HLS, generates thumbnails, uploads processed assets to S3, and notifies the StreamIt API when processing is complete.
+The service consumes background jobs from Redis, downloads uploaded videos, transcodes them into multiple HLS renditions, generates thumbnails and master playlists, uploads processed assets to Amazon S3, and notifies the API when processing is complete.
 
 ## Tech Stack
 
@@ -12,15 +12,21 @@ Built with Go for efficient concurrent media processing, the worker consumes bac
 - FFmpeg
 - Redis
 - Asynq
-- AWS S3
+- Amazon S3
 - Docker
 
 ## Features
 
-- Asynchronous background video processing
-- HLS transcoding for adaptive streaming
-- Automatic thumbnail generation
-- Upload processed assets to S3
-- API callback after successful processing
-- Temporary workspace cleanup
-- Dockerized for easy deployment
+- Asynchronous background job processing
+- Multi-bitrate HLS transcoding (1080p, 720p, 480p)
+- Adaptive bitrate streaming via master playlist generation
+- Automatic thumbnail extraction
+- Recursive upload of processed assets to Amazon S3
+- API callback on successful processing
+- Temporary workspace management
+- Dockerized for deployment
+
+## Next
+
+- Parallel transcoding using goroutines
+- Configurable concurrency with semaphores

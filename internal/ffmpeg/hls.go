@@ -18,9 +18,14 @@ func (s *Service) GenerateVariant(
 		return err
 	}
 
+	// scale := fmt.Sprintf(
+	// 	"scale=%d:%d",
+	// 	rendition.Width,
+	// 	rendition.Height,
+	// )
+
 	scale := fmt.Sprintf(
-		"scale=%d:%d",
-		rendition.Width,
+		"scale=-2:%d",
 		rendition.Height,
 	)
 
