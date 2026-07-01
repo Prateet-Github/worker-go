@@ -113,6 +113,12 @@ func (h *VideoHandler) ProcessVideo(
 
 	log.Println("HLS generated")
 
+	if err := h.ffmpeg.GenerateMasterPlaylist(outputDir); err != nil {
+		return err
+	}
+
+	log.Println("Master playlist generated")
+
 	thumbnailPath := filepath.Join(
 		workspace,
 		"thumbnail.jpg",
