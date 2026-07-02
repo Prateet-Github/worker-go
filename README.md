@@ -25,8 +25,5 @@ The service consumes background jobs from Redis, downloads uploaded videos, tran
 - API callback on successful processing
 - Temporary workspace management
 - Dockerized for deployment
-
-## Next
-
 - Parallel transcoding using goroutines
 - Configurable concurrency with semaphores

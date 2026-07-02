@@ -20,12 +20,6 @@ func (s *Service) GenerateVariant(
 		return err
 	}
 
-	// scale := fmt.Sprintf(
-	// 	"scale=%d:%d",
-	// 	rendition.Width,
-	// 	rendition.Height,
-	// )
-
 	scale := fmt.Sprintf(
 		"scale=-2:%d",
 		rendition.Height,
@@ -61,10 +55,6 @@ func (s *Service) GenerateVariant(
 		"ffmpeg",
 		args...,
 	)
-
-	// cmd.Stdout = os.Stdout
-	// cmd.Stderr = os.Stderr
-	// return cmd.Run()
 
 	var stderr bytes.Buffer
 
