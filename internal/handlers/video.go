@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"os"
 
 	"github.com/Prateet-Github/worker-go/internal/api"
 	"github.com/Prateet-Github/worker-go/internal/config"
@@ -53,6 +54,14 @@ func (h *VideoHandler) ProcessVideo(
 		"temp",
 		payload.VideoID,
 	)
+
+	defer func() {
+		if err := os.RemoveAll(workspace); err != nil {
+			log.Printf("Failed to cleanup workspace %s: %v", workspace, err)
+		} else {
+			log.Printf("Workspace cleaned: %s", workspace)
+		}
+	}()
 
 	inputPath := filepath.Join(
 		workspace,
