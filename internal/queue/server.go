@@ -10,10 +10,11 @@ import (
 func NewServer(cfg *config.Config) *asynq.Server {
 	return asynq.NewServer(
 		asynq.RedisClientOpt{
-			Addr: fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort),
+			Addr:     fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort),
+			Password: cfg.RedisPassword,
 		},
 		asynq.Config{
-			Concurrency: 5,
+			Concurrency: 3,
 		},
 	)
 }

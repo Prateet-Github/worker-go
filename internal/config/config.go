@@ -7,8 +7,9 @@ import (
 )
 
 type Config struct {
-	RedisHost string
-	RedisPort string
+	RedisHost     string
+	RedisPort     string
+	RedisPassword string
 
 	AWSRegion          string
 	AWSAccessKeyID     string

@@ -10,7 +10,8 @@ import (
 
 func NewClient(cfg *config.Config) *redis.Client {
 	return redis.NewClient(&redis.Options{
-		Addr: fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort),
+		Addr:     fmt.Sprintf("%s:%s", cfg.RedisHost, cfg.RedisPort),
+		Password: cfg.RedisPassword,
 	})
 }
 
