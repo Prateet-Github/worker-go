@@ -1,7 +1,6 @@
 package config
 
 import (
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -23,9 +22,11 @@ type Config struct {
 
 func Load() *Config {
 
-	if err := godotenv.Load(); err != nil {
-		log.Println(".env not found, using environment variables")
-	}
+	_ = godotenv.Load()
+
+	// if err := godotenv.Load(); err != nil {
+	// 	log.Println(".env not found, using environment variables")
+	// }
 
 	return &Config{
 		RedisHost:          os.Getenv("REDIS_HOST"),

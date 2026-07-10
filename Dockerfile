@@ -1,4 +1,3 @@
-# Builder
 FROM golang:1.25 AS builder
 
 WORKDIR /app
@@ -10,11 +9,12 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o worker ./cmd/worker
 
-# Runtime 
 FROM debian:bookworm-slim
 
 RUN apt-get update && \
-  apt-get install -y ffmpeg ca-certificates && \
+  apt-get install -y --no-install-recommends \
+  ffmpeg \
+  ca-certificates && \
   rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
