@@ -151,6 +151,19 @@ func (h *VideoHandler) ProcessVideo(
 
 	log.Println("Thumbnail uploaded")
 
+	log.Println("Deleting raw video...")
+
+	if err := s3.DeleteObject(
+		ctx,
+		h.s3Client,
+		h.cfg.S3RawBucket,
+		payload.S3Key,
+	); err != nil {
+		return err
+	}
+
+	log.Println("Raw video deleted")
+
 	log.Println("Calling CompleteVideo API...")
 
 	err := h.api.CompleteVideo(
